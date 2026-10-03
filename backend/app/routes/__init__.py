@@ -6,6 +6,7 @@ from app.routes.dashboard import bp as dashboard_bp
 from app.routes.batch import bp as batch_bp
 from app.routes.history import bp as history_bp
 from app.routes.health import bp as health_bp
+from app.routes.profile import bp as profile_bp
 
 def register_blueprints(app):
     app.register_blueprint(listings_bp)
@@ -16,3 +17,4 @@ def register_blueprints(app):
     app.register_blueprint(batch_bp)
     app.register_blueprint(history_bp)
     app.register_blueprint(health_bp)
+    app.register_blueprint(profile_bp)
