@@ -116,6 +116,13 @@ def create_listing():
 def update_listing(listing_id):
     """Updates an existing listing after validation."""
     listing = Listing.query.get_or_404(listing_id)
+
+    if listing.status == 'revisions_applied':
+        return jsonify({
+            'success': False,
+            'message': 'This listing cannot be edited once revisions have been applied.'
+        }), 400
+
     data = request.get_json() or {}
 
     validation_result = ValidationService.validate_listing_payload(data, exclude_id=listing_id)

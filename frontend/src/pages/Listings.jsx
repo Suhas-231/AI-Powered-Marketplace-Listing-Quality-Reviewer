@@ -317,14 +317,23 @@ export const Listings = () => {
                             <Eye className="w-4 h-4" />
                           </Link>
 
-                          {/* Edit listing */}
-                          <Link
-                            to={`/listings/${l.id}/edit`}
-                            className="p-1 text-slate-400 hover:text-slate-600 rounded transition"
-                            title="Edit Listing"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Link>
+                          {/* Edit listing - disabled once revisions are applied */}
+                          {l.status === 'revisions_applied' ? (
+                            <span
+                              className="p-1 text-slate-300 cursor-not-allowed rounded"
+                              title="Listing cannot be edited once revisions have been applied"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </span>
+                          ) : (
+                            <Link
+                              to={`/listings/${l.id}/edit`}
+                              className="p-1 text-slate-400 hover:text-slate-600 rounded transition"
+                              title="Edit Listing"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Link>
+                          )}
 
                           {/* Delete listing */}
                           <button

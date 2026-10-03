@@ -95,7 +95,16 @@ export const ListingDetail = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
-          {listing.status === 'revisions_pending' ? (
+          {listing.status === 'revisions_applied' ? (
+            <button
+              disabled
+              title="Listing cannot be edited once revisions have been applied"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-100 text-slate-400 border border-slate-200 text-xs font-semibold cursor-not-allowed opacity-60"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              Edit Listing
+            </button>
+          ) : listing.status === 'revisions_pending' ? (
             <button
               disabled
               title="Please review and apply pending revisions before editing listing"
@@ -136,20 +145,11 @@ export const ListingDetail = () => {
 
       {/* Revisions Applied Notice */}
       {listing.status === 'revisions_applied' && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-emerald-900 shadow-2xs">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            <span>
-              <strong>Revisions applied:</strong> Human reviewer has approved and applied revisions to this listing. You can now edit the listing to further refine it.
-            </span>
-          </div>
-          <Link
-            to={`/listings/${listing.id}/edit`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition shrink-0 self-start sm:self-auto"
-          >
-            <Edit className="w-3.5 h-3.5" />
-            Edit Listing Now
-          </Link>
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2.5 text-xs text-emerald-900 shadow-2xs">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          <span>
+            <strong>Revisions applied:</strong> Human reviewer has approved and applied revisions to this listing. Direct editing is locked.
+          </span>
         </div>
       )}
 

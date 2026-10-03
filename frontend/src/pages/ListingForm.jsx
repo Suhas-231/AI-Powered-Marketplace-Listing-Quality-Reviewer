@@ -61,6 +61,12 @@ export const ListingForm = () => {
           const res = await api.get(`/api/listings/${id}`);
           const item = res.data;
 
+          if (item.status === 'revisions_applied') {
+            toast.error('This listing cannot be edited once revisions have been applied.');
+            navigate(`/listings/${id}`);
+            return;
+          }
+
           // Convert attributes dict to array of {key, value}
           const attrsArray = item.attributes
             ? Object.entries(item.attributes).map(([k, v]) => ({ key: k, value: String(v) }))

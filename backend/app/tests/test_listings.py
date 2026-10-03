@@ -57,3 +57,33 @@ def test_dashboard_stats(client):
     assert stats_res.status_code == 200
     data = stats_res.get_json()
     assert data['summary']['total_listings'] == 1
+
+
+def test_revisions_applied_cannot_be_edited(client):
+    # Create listing directly
+    with client.application.app_context():
+        listing = Listing(
+            title="Original Valid Title Here",
+            description="Original valid description that is long enough.",
+            category="Home & Kitchen",
+            price=29.99,
+            seller="KitchenCo",
+            status="revisions_applied"
+        )
+        db.session.add(listing)
+        db.session.commit()
+        l_id = listing.id
+
+    # Attempt to edit/update listing
+    update_res = client.put(f'/api/listings/{l_id}', json={
+        'title': 'New Updated Title Here',
+        'description': 'Original valid description that is long enough.',
+        'category': 'Home & Kitchen',
+        'price': 29.99,
+        'seller': 'KitchenCo'
+    })
+    assert update_res.status_code == 400
+    data = update_res.get_json()
+    assert data['success'] is False
+    assert 'cannot be edited once revisions have been applied' in data['message']
+
