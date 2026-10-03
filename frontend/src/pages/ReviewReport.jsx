@@ -5,6 +5,7 @@ import {
   Sparkles,
   CheckCircle2,
   XCircle,
+  Edit,
   Edit3,
   AlertTriangle,
   AlertCircle,
@@ -16,7 +17,6 @@ import {
   RotateCcw,
   ShieldAlert,
   Loader2,
-  ExternalLink,
 } from 'lucide-react';
 import api from '../api/client';
 import { StatusBadge } from '../components/StatusBadge';
@@ -118,6 +118,7 @@ export const ReviewReport = () => {
   const pendingCount = review.findings?.filter(
     (f) => !f.suggestion || f.suggestion.action_status === 'pending'
   ).length || 0;
+  const hasRevisionsApplied = approvedCount > 0 || review.listing_status === 'revisions_applied';
 
   return (
     <div className="p-8 space-y-8 max-w-6xl mx-auto">
@@ -151,14 +152,45 @@ export const ReviewReport = () => {
           </div>
         </div>
 
-        <Link
-          to={`/listings/${review.listing_id}`}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition"
-        >
-          View Live Listing
-          <ExternalLink className="w-3.5 h-3.5" />
-        </Link>
+        {/* Once revisions are applied it allows editing listing */}
+        {hasRevisionsApplied ? (
+          <Link
+            to={`/listings/${review.listing_id}/edit`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition"
+          >
+            <Edit className="w-3.5 h-3.5" />
+            Edit Listing
+          </Link>
+        ) : (
+          <button
+            disabled
+            title="Apply revisions by approving findings to enable editing listing"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-100 text-slate-400 border border-slate-200 text-xs font-semibold cursor-not-allowed opacity-60"
+          >
+            <Edit className="w-3.5 h-3.5" />
+            Edit Listing
+          </button>
+        )}
       </div>
+
+      {/* Revisions Applied Banner */}
+      {hasRevisionsApplied && (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-emerald-900 shadow-2xs">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <span>
+              <strong>Revisions applied:</strong> {approvedCount > 0 ? `${approvedCount} revision(s) have been applied to this listing.` : 'Revisions have been applied to this listing.'} You can now edit the updated listing.
+            </span>
+          </div>
+          <Link
+            to={`/listings/${review.listing_id}/edit`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition shrink-0 self-start sm:self-auto"
+          >
+            <Edit className="w-3.5 h-3.5" />
+            Edit Listing Now
+          </Link>
+        </div>
+      )}
 
       {/* Mandatory Demonstration Notice Banner */}
       <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-xs text-amber-900">

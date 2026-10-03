@@ -24,6 +24,7 @@ class Review(db.Model):
             'id': self.id,
             'listing_id': self.listing_id,
             'listing_title': self.listing.title if self.listing else None,
+            'listing_status': self.listing.status if self.listing else None,
             'status': self.status,
             'summary': self.summary,
             'overall_status': self.overall_status,

@@ -14,15 +14,12 @@ import {
   ChevronRight,
   AlertCircle,
   Loader2,
-  CheckSquare,
-  Square,
 } from 'lucide-react';
 import api from '../api/client';
 import { StatusBadge } from '../components/StatusBadge';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { CsvImportModal } from '../components/CsvImportModal';
-import { BatchReviewModal } from '../components/BatchReviewModal';
 import { useToast } from '../context/ToastContext';
 
 export const Listings = () => {
@@ -41,10 +38,8 @@ export const Listings = () => {
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
 
-  // Modals & Batch Selection
-  const [selectedIds, setSelectedIds] = useState([]);
+  // Modals
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
-  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
 
   const toast = useToast();
 
@@ -127,25 +122,10 @@ export const Listings = () => {
     try {
       await api.delete(`/api/listings/${listingId}`);
       toast.success(`Listing #${listingId} deleted.`);
-      setSelectedIds((prev) => prev.filter((id) => id !== listingId));
       fetchListings();
     } catch (err) {
       toast.error('Failed to delete listing: ' + err.message);
     }
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === listings.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(listings.map((l) => l.id));
-    }
-  };
-
-  const toggleSelectOne = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
   };
 
   return (
@@ -166,16 +146,6 @@ export const Listings = () => {
             <Upload className="w-3.5 h-3.5 text-slate-500" />
             Import CSV
           </button>
-
-          {selectedIds.length > 0 && (
-            <button
-              onClick={() => setIsBatchModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold transition"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              Batch Review ({selectedIds.length})
-            </button>
-          )}
 
           <Link
             to="/listings/new"
@@ -269,19 +239,6 @@ export const Listings = () => {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-4 w-10 text-center">
-                    <button
-                      onClick={toggleSelectAll}
-                      className="text-slate-500 hover:text-slate-800"
-                      title="Select All"
-                    >
-                      {selectedIds.length === listings.length && listings.length > 0 ? (
-                        <CheckSquare className="w-4 h-4 text-indigo-600" />
-                      ) : (
-                        <Square className="w-4 h-4" />
-                      )}
-                    </button>
-                  </th>
                   <th className="py-3 px-4">Item Details</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4">Price</th>
@@ -292,30 +249,13 @@ export const Listings = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {listings.map((l) => {
-                  const isSelected = selectedIds.includes(l.id);
                   const isReviewing = reviewingId === l.id;
 
                   return (
                     <tr
                       key={l.id}
-                      className={`hover:bg-slate-50/60 transition-colors ${
-                        isSelected ? 'bg-indigo-50/30' : ''
-                      }`}
+                      className="hover:bg-slate-50/60 transition-colors"
                     >
-                      {/* Checkbox */}
-                      <td className="py-3.5 px-4 text-center">
-                        <button
-                          onClick={() => toggleSelectOne(l.id)}
-                          className="text-slate-400 hover:text-slate-700"
-                        >
-                          {isSelected ? (
-                            <CheckSquare className="w-4 h-4 text-indigo-600" />
-                          ) : (
-                            <Square className="w-4 h-4" />
-                          )}
-                        </button>
-                      </td>
-
                       {/* Title & Description snippet */}
                       <td className="py-3.5 px-4 max-w-sm">
                         <Link
@@ -376,14 +316,23 @@ export const Listings = () => {
                             <Eye className="w-4 h-4" />
                           </Link>
 
-                          {/* Edit listing */}
-                          <Link
-                            to={`/listings/${l.id}/edit`}
-                            className="p-1 text-slate-400 hover:text-slate-600 rounded transition"
-                            title="Edit Listing"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Link>
+                          {/* Edit listing - allowed once revisions are applied or in draft */}
+                          {l.status === 'revisions_pending' ? (
+                            <span
+                              className="p-1 text-slate-300 cursor-not-allowed rounded"
+                              title="Please review and apply pending revisions before editing listing"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </span>
+                          ) : (
+                            <Link
+                              to={`/listings/${l.id}/edit`}
+                              className="p-1 text-slate-400 hover:text-slate-600 rounded transition"
+                              title="Edit Listing"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Link>
+                          )}
 
                           {/* Delete listing */}
                           <button
@@ -437,17 +386,6 @@ export const Listings = () => {
         onClose={() => setIsCsvModalOpen(false)}
         onSuccess={() => {
           setIsCsvModalOpen(false);
-          fetchListings();
-        }}
-      />
-
-      {/* Batch Review Modal */}
-      <BatchReviewModal
-        isOpen={isBatchModalOpen}
-        onClose={() => setIsBatchModalOpen(false)}
-        selectedListingIds={selectedIds}
-        onSuccess={() => {
-          setSelectedIds([]);
           fetchListings();
         }}
       />

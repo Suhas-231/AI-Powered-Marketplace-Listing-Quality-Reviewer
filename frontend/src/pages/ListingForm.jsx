@@ -71,7 +71,7 @@ export const ListingForm = () => {
             description: item.description || '',
             category: item.category || '',
             price: item.price !== undefined ? String(item.price) : '',
-            currency: item.currency || 'USD',
+            currency: item.currency || 'INR',
             listing_type: item.listing_type || 'Product',
             seller: item.seller || '',
             tags: Array.isArray(item.tags) ? item.tags.join(', ') : '',
