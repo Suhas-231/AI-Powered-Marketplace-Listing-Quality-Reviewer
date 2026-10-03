@@ -5,7 +5,6 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  AlertTriangle,
   ArrowRight,
   PlusCircle,
   Sparkles,
@@ -45,8 +44,8 @@ export const Dashboard = () => {
     return (
       <div className="p-8 space-y-6 max-w-7xl mx-auto">
         <div className="h-8 bg-slate-200 rounded w-48 animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-28 bg-white rounded-xl border border-slate-200 animate-pulse p-4" />
           ))}
         </div>
@@ -60,7 +59,6 @@ export const Dashboard = () => {
     pending_reviews: 0,
     approved_revisions: 0,
     rejected_revisions: 0,
-    listings_requiring_attention: 0,
   };
 
   const cards = [
@@ -88,12 +86,6 @@ export const Dashboard = () => {
       icon: XCircle,
       color: 'text-rose-600 bg-rose-50 border-rose-100',
     },
-    {
-      title: 'Requires Attention',
-      value: summary.listings_requiring_attention,
-      icon: AlertTriangle,
-      color: 'text-orange-600 bg-orange-50 border-orange-100',
-    },
   ];
 
   return (
@@ -118,7 +110,7 @@ export const Dashboard = () => {
       </div>
 
       {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card, idx) => {
           const Icon = card.icon;
           return (
