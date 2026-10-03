@@ -7,7 +7,6 @@ import {
   Sparkles,
   BookOpen,
   History,
-  Settings,
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -18,7 +17,6 @@ export const Sidebar = () => {
     { name: 'AI Reviews', path: '/reviews', icon: Sparkles },
     { name: 'Policy Library', path: '/policies', icon: BookOpen },
     { name: 'Review History', path: '/history', icon: History },
-    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (

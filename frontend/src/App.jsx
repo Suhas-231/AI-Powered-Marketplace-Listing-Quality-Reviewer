@@ -12,7 +12,6 @@ import { AIReviews } from './pages/AIReviews';
 import { ReviewReport } from './pages/ReviewReport';
 import { PolicyLibrary } from './pages/PolicyLibrary';
 import { ReviewHistory } from './pages/ReviewHistory';
-import { Settings } from './pages/Settings';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,7 +40,6 @@ export default function App() {
                 <Route path="/reviews/:id" element={<ReviewReport />} />
                 <Route path="/policies" element={<PolicyLibrary />} />
                 <Route path="/history" element={<ReviewHistory />} />
-                <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
