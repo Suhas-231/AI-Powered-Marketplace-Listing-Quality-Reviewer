@@ -88,9 +88,6 @@ export const ListingDetail = () => {
               <h1 className="text-xl font-bold text-slate-900 tracking-tight">{listing.title}</h1>
               <StatusBadge status={listing.status} />
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Listing ID #{listing.id} &bull; Created {new Date(listing.created_at).toLocaleString()}
-            </p>
           </div>
         </div>
 

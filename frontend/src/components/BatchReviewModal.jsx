@@ -115,9 +115,6 @@ export const BatchReviewModal = ({ isOpen, onClose, selectedListingIds = [], onS
             <div className="flex flex-col items-center justify-center py-10 space-y-3">
               <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
               <p className="text-sm font-semibold text-slate-800">Processing Batch Review...</p>
-              <p className="text-xs text-slate-500">
-                Calling Gemini API sequentially with safe rate limit pacing. Please wait.
-              </p>
             </div>
           )}
 
