@@ -459,10 +459,19 @@ export const ReviewReport = () => {
                           <button
                             type="button"
                             onClick={() => handleApprove(suggestion.id)}
-                            disabled={actionLoading || actionStatus === 'approved'}
+                            disabled={actionLoading || actionStatus === 'approved' || actionStatus === 'rejected'}
+                            title={
+                              actionStatus === 'approved'
+                                ? 'Approved and applied to listing'
+                                : actionStatus === 'rejected'
+                                ? 'Blocked: Suggestion has been rejected'
+                                : 'Approve this revision'
+                            }
                             className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                               actionStatus === 'approved'
-                                ? 'bg-emerald-100 text-emerald-800 cursor-default opacity-80'
+                                ? 'bg-emerald-100 text-emerald-800 cursor-default opacity-90'
+                                : actionStatus === 'rejected'
+                                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-40'
                                 : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
                             }`}
                           >
@@ -475,8 +484,19 @@ export const ReviewReport = () => {
                             <button
                               type="button"
                               onClick={() => handleStartEdit(suggestion)}
-                              disabled={actionLoading}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
+                              disabled={actionLoading || actionStatus === 'approved' || actionStatus === 'rejected'}
+                              title={
+                                actionStatus === 'approved'
+                                  ? 'Blocked: Revision already approved and applied'
+                                  : actionStatus === 'rejected'
+                                  ? 'Blocked: Suggestion has been rejected'
+                                  : 'Edit revision wording'
+                              }
+                              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                                actionStatus === 'approved' || actionStatus === 'rejected'
+                                  ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-40'
+                                  : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-700'
+                              }`}
                             >
                               <Edit3 className="w-3.5 h-3.5 text-slate-500" />
                               Edit Revision
@@ -488,10 +508,19 @@ export const ReviewReport = () => {
                             <button
                               type="button"
                               onClick={() => setRejectingSuggestionId(suggestion.id)}
-                              disabled={actionLoading || actionStatus === 'rejected'}
+                              disabled={actionLoading || actionStatus === 'rejected' || actionStatus === 'approved'}
+                              title={
+                                actionStatus === 'rejected'
+                                  ? 'Rejected (Original content retained)'
+                                  : actionStatus === 'approved'
+                                  ? 'Blocked: Revision has already been approved'
+                                  : 'Reject this suggestion'
+                              }
                               className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                                 actionStatus === 'rejected'
-                                  ? 'bg-rose-100 text-rose-800 cursor-default opacity-80'
+                                  ? 'bg-rose-100 text-rose-800 cursor-default opacity-90'
+                                  : actionStatus === 'approved'
+                                  ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-40'
                                   : 'bg-white border border-rose-200 text-rose-700 hover:bg-rose-50'
                               }`}
                             >

@@ -40,6 +40,9 @@ def approve_suggestion(suggestion_id):
     records ReviewAction, and generates AuditLog.
     """
     suggestion = Suggestion.query.get_or_404(suggestion_id)
+    if suggestion.action_status == 'rejected':
+        return jsonify({'success': False, 'message': 'Cannot approve a suggestion that has already been rejected.'}), 400
+
     finding = suggestion.finding
     review = finding.review
     listing = review.listing
@@ -103,6 +106,9 @@ def edit_suggestion(suggestion_id):
     Can also apply immediately if 'apply': True is passed.
     """
     suggestion = Suggestion.query.get_or_404(suggestion_id)
+    if suggestion.action_status in ['approved', 'rejected']:
+        return jsonify({'success': False, 'message': f'Cannot edit a suggestion that has already been {suggestion.action_status}.'}), 400
+
     finding = suggestion.finding
     listing = finding.review.listing
     user = User.query.first()
@@ -168,6 +174,9 @@ def reject_suggestion(suggestion_id):
     Records the rejection reason and user decision.
     """
     suggestion = Suggestion.query.get_or_404(suggestion_id)
+    if suggestion.action_status == 'approved':
+        return jsonify({'success': False, 'message': 'Cannot reject a suggestion that has already been approved.'}), 400
+
     finding = suggestion.finding
     listing = finding.review.listing
     user = User.query.first()

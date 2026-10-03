@@ -1,6 +1,6 @@
 import React from 'react';
-import { Search, ShieldAlert, Sparkles, User, Bell } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Search, User } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 
 export const Navbar = ({ searchQuery, setSearchQuery }) => {
   const navigate = useNavigate();
@@ -14,18 +14,16 @@ export const Navbar = ({ searchQuery, setSearchQuery }) => {
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center justify-between px-6">
-      {/* Brand & Badge */}
+      {/* Brand Logo & Application Title */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 font-bold text-slate-900 text-lg tracking-tight">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-sm shadow-indigo-200">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <span>Marketplace Listing Quality Reviewer</span>
-        </div>
-        <span className="hidden md:inline-flex items-center gap-1 text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full">
-          <ShieldAlert className="w-3 h-3 text-amber-600" />
-          Demo Policy Mode
-        </span>
+        <Link to="/" className="flex items-center gap-3 font-bold text-slate-900 text-lg tracking-tight hover:opacity-95 transition">
+          <img
+            src="/logo.png"
+            alt="Reviewer Pro Logo"
+            className="h-10 w-auto object-contain"
+          />
+          <span className="hidden sm:inline">Marketplace Listing Quality Reviewer</span>
+        </Link>
       </div>
 
       {/* Center Search Input */}

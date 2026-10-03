@@ -51,7 +51,7 @@ class Config:
         "General Merchandise"
     ]
 
-    ALLOWED_CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "INR"]
+    ALLOWED_CURRENCIES = ["INR", "USD", "EUR", "GBP", "CAD", "AUD"]
     ALLOWED_LISTING_TYPES = ["Product", "Service"]
 
     # CORS

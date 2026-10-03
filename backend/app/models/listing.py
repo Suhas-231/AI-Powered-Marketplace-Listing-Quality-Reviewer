@@ -10,7 +10,7 @@ class Listing(db.Model):
     description = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(100), nullable=False, index=True)
     price = db.Column(db.Float, nullable=False)
-    currency = db.Column(db.String(10), nullable=False, default='USD')
+    currency = db.Column(db.String(10), nullable=False, default='INR')
     listing_type = db.Column(db.String(50), nullable=False, default='Product')
     attributes = db.Column(db.JSON, nullable=True, default=dict)
     seller = db.Column(db.String(120), nullable=False)

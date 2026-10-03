@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   ListOrdered,
@@ -8,7 +8,6 @@ import {
   BookOpen,
   History,
   Settings,
-  ShieldCheck,
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -24,15 +23,19 @@ export const Sidebar = () => {
 
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 min-h-screen">
-      {/* Brand title area */}
-      <div className="p-5 border-b border-slate-100 flex items-center gap-2.5">
-        <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center text-white">
-          <ShieldCheck className="w-4 h-4" />
-        </div>
-        <div>
-          <h1 className="text-sm font-bold text-slate-900 leading-none">Reviewer Pro</h1>
-          <span className="text-[10px] text-slate-400 font-medium">Compliance & Quality</span>
-        </div>
+      {/* Brand title area with uploaded Logo */}
+      <div className="p-4 border-b border-slate-100">
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="Reviewer Pro"
+            className="h-10 w-auto object-contain flex-shrink-0"
+          />
+          <div className="min-w-0">
+            <h1 className="text-sm font-bold text-slate-900 leading-tight truncate">Reviewer Pro</h1>
+            <span className="text-[10px] text-slate-400 font-medium block truncate">Marketplace Quality</span>
+          </div>
+        </Link>
       </div>
 
       {/* Nav links */}
@@ -58,17 +61,6 @@ export const Sidebar = () => {
           );
         })}
       </nav>
-
-      {/* Bottom Knowledge Base Disclaimer Notice */}
-      <div className="p-4 m-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 space-y-1.5">
-        <div className="flex items-center gap-1.5 font-semibold text-slate-800 text-[11px]">
-          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-          Demonstration Mode
-        </div>
-        <p className="text-[11px] leading-relaxed text-slate-500">
-          Sample demonstration policies active. Human reviewer approval required before applying revisions.
-        </p>
-      </div>
     </aside>
   );
 };

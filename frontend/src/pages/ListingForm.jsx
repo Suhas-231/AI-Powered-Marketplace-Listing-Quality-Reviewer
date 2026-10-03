@@ -25,7 +25,7 @@ export const ListingForm = () => {
     description: '',
     category: '',
     price: '',
-    currency: 'USD',
+    currency: 'INR',
     listing_type: 'Product',
     seller: '',
     tags: '',
@@ -51,7 +51,7 @@ export const ListingForm = () => {
     'General Merchandise',
   ];
 
-  const currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR'];
+  const currencies = ['INR', 'USD', 'EUR', 'GBP', 'CAD', 'AUD'];
 
   useEffect(() => {
     if (isEdit) {

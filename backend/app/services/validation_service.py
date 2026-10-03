@@ -87,7 +87,7 @@ class ValidationService:
         max_desc_len = current_app.config.get("MAX_DESC_LENGTH", 5000)
         min_desc_len = current_app.config.get("MIN_DESC_LENGTH", 20)
         allowed_categories = current_app.config.get("ALLOWED_CATEGORIES", [])
-        allowed_currencies = current_app.config.get("ALLOWED_CURRENCIES", ["USD", "EUR", "GBP", "CAD", "AUD", "INR"])
+        allowed_currencies = current_app.config.get("ALLOWED_CURRENCIES", ["INR", "USD", "EUR", "GBP", "CAD", "AUD"])
         allowed_types = current_app.config.get("ALLOWED_LISTING_TYPES", ["Product", "Service"])
 
         # 1. Title validation
@@ -144,11 +144,11 @@ class ValidationService:
                 errors["price"] = "Price must be a valid numeric value (e.g. 19.99)."
 
         # 5. Currency validation
-        raw_curr = data.get("currency", "USD")
-        curr_str = str(raw_curr).strip().upper() if raw_curr else "USD"
+        raw_curr = data.get("currency", "INR")
+        curr_str = str(raw_curr).strip().upper() if raw_curr else "INR"
         if curr_str not in allowed_currencies:
-            warnings.append(f"Currency '{curr_str}' will default to USD.")
-            sanitized["currency"] = "USD"
+            warnings.append(f"Currency '{curr_str}' will default to INR.")
+            sanitized["currency"] = "INR"
         else:
             sanitized["currency"] = curr_str
 
