@@ -148,7 +148,7 @@ export const ListingDetail = () => {
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2.5 text-xs text-emerald-900 shadow-2xs">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
           <span>
-            <strong>Revisions applied:</strong> Human reviewer has approved and applied revisions to this listing. Direct editing is locked.
+            <strong>Revisions applied:</strong> Human reviewer has approved and applied revisions to this listing.
           </span>
         </div>
       )}

@@ -112,7 +112,6 @@ export const AIReviews = () => {
               <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">Review ID</th>
                 <th className="py-3 px-4">Listing Title</th>
-                <th className="py-3 px-4">Model</th>
                 <th className="py-3 px-4">Findings</th>
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Created</th>
@@ -135,9 +134,6 @@ export const AIReviews = () => {
                     <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
                       {rev.summary}
                     </p>
-                  </td>
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-slate-600">
-                    {rev.model_name}
                   </td>
                   <td className="py-3.5 px-4 font-medium text-slate-700">
                     <div className="flex items-center gap-1.5">

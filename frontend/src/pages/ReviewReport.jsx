@@ -160,8 +160,7 @@ export const ReviewReport = () => {
               >
                 {review.listing_title || `Listing #${review.listing_id}`}
               </Link>{' '}
-              &bull; Model: <span className="font-mono text-slate-600">{review.model_name}</span> &bull;{' '}
-              {new Date(review.created_at).toLocaleString()}
+              &bull; {new Date(review.created_at).toLocaleString()}
             </p>
           </div>
         </div>
