@@ -1,0 +1,142 @@
+[
+  {
+    "policy_code": "POL-TITLE-001",
+    "section_number": "Section 1.1",
+    "title": "Title Formatting & Length Limitation",
+    "category": "Product title guidelines",
+    "description": "Titles must accurately identify the product or service, begin with the brand name (if applicable), and not exceed 150 characters. Excessive punctuation, emoji symbols, and all-caps text are strictly prohibited.",
+    "severity_guidance": "Medium",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-TITLE-002",
+    "section_number": "Section 1.2",
+    "title": "Prohibition of Keyword Stuffing in Titles",
+    "category": "Product title guidelines",
+    "description": "Repetitive keywords, search-engine spamming phrases, and unrelated brand mentions intended to manipulate search ranking are prohibited in product titles.",
+    "severity_guidance": "Medium",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-DESC-001",
+    "section_number": "Section 2.1",
+    "title": "Description Clarity & Truthful Representation",
+    "category": "Description guidelines",
+    "description": "Descriptions must provide comprehensive, factually accurate details including dimensions, materials, contents, compatibility, and intended usage. Vague, contradictory, or missing critical item specifications violate marketplace clarity standards.",
+    "severity_guidance": "Medium",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-DESC-002",
+    "section_number": "Section 2.2",
+    "title": "Prohibition of Off-Platform Redirection",
+    "category": "Description guidelines",
+    "description": "Product descriptions must never include hyperlinks, external website URLs, WhatsApp numbers, direct phone numbers, email addresses, or prompts directing transactions outside the marketplace platform.",
+    "severity_guidance": "High",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-PROM-001",
+    "section_number": "Section 3.1",
+    "title": "Unsubstantiated Promotional Superlatives",
+    "category": "Promotional claims",
+    "description": "Subjective promotional superlatives such as '#1 Best in the World', 'Miracle Solution', 'Guaranteed 100% Success', 'Cures All', or 'Unbeatable Quality' cannot be asserted as factual claims without verified independent third-party certification.",
+    "severity_guidance": "High",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-PROM-002",
+    "section_number": "Section 3.2",
+    "title": "Misleading Urgency & Fake Scarcity",
+    "category": "Promotional claims",
+    "description": "Artificial urgency triggers such as 'Only 1 item left in the world!' or unverified countdown discounts designed to mislead consumer decision-making are prohibited.",
+    "severity_guidance": "Medium",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-HLTH-001",
+    "section_number": "Section 4.1",
+    "title": "Medical, Therapeutic & Disease-Cure Claims",
+    "category": "Medical and health claims",
+    "description": "Products that are not certified prescription medications or registered medical devices must never claim to cure, treat, diagnose, or prevent human diseases (e.g., Cancer, Diabetes, COVID-19, Arthritis, Chronic Depression). Any therapeutic health claim must include required regulatory disclaimers.",
+    "severity_guidance": "High",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-HLTH-002",
+    "section_number": "Section 4.2",
+    "title": "Weight Loss & Dietary Supplement Promises",
+    "category": "Medical and health claims",
+    "description": "Dietary supplements and fitness products cannot promise rapid, effortless, or guaranteed weight loss (such as 'Lose 20kg in 3 days without diet'). Verifiable ingredient listings and allergy warnings must be clearly provided.",
+    "severity_guidance": "High",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-PRIC-001",
+    "section_number": "Section 5.1",
+    "title": "Transparent Pricing & No Hidden Charges",
+    "category": "Pricing transparency",
+    "description": "Listing prices must reflect the actual, complete purchase price of the item or service. Artificially deflating the listing price while demanding mandatory hidden surcharges, extra cash-on-delivery fees, or bait-and-switch pricing is strictly prohibited.",
+    "severity_guidance": "High",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-REST-001",
+    "section_number": "Section 6.1",
+    "title": "Restricted & Prohibited Goods",
+    "category": "Restricted content",
+    "description": "Sale of firearms, weapons, explosives, hazardous chemicals, controlled substances, illicit drugs, prescription-only medicines, stolen property, and counterfeit currency is strictly banned on the platform.",
+    "severity_guidance": "High",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-REST-002",
+    "section_number": "Section 6.2",
+    "title": "Adult & Age-Restricted Merchandise",
+    "category": "Restricted content",
+    "description": "Merchandise containing explicit adult imagery, sexually explicit toys, or age-gated nicotine/tobacco products must not be listed in general categories and must strictly adhere to adult verification standards.",
+    "severity_guidance": "High",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-BRND-001",
+    "section_number": "Section 7.1",
+    "title": "Brand Trademark & Counterfeit Protection",
+    "category": "Brand terminology",
+    "description": "Items cannot claim to be authentic branded products (e.g., Apple, Nike, Sony, Gucci) without authorization. Terms such as '100% Genuine Replica', 'First Copy', 'OEM Dupes', or using registered trademark logos on unbranded items are unlawful counterfeiting violations.",
+    "severity_guidance": "High",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-SPEC-001",
+    "section_number": "Section 8.1",
+    "title": "Verifiable Product Specifications & Warranty Claims",
+    "category": "Product specifications",
+    "description": "Technical parameters such as storage capacity, battery lifespan, waterproof IP ratings, processor speed, and warranty periods must be verifiable. Unrealistic claims like 'Infinite battery life' or vague warranty promises without terms are non-compliant.",
+    "severity_guidance": "Medium",
+    "is_active": true,
+    "is_demo_policy": true
+  },
+  {
+    "policy_code": "POL-SELLER-001",
+    "section_number": "Section 9.1",
+    "title": "Seller Identity & Fulfillment Accountability",
+    "category": "Seller-provided information",
+    "description": "The seller name, origin location, and fulfillment expectations must be clearly disclosed. Masking identity or making false claims regarding local shipping when items ship from international dropshippers is prohibited.",
+    "severity_guidance": "Low",
+    "is_active": true,
+    "is_demo_policy": true
+  }
+]

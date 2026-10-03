@@ -1,0 +1,35 @@
+# Environments & Secrets
+.env
+.env.local
+.env.*.local
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+marketplace_reviewer.db
+
+# Node.js & Frontend Build
+frontend/node_modules/
+frontend/dist/
+dist/
+.eslintcache
+.stylelintcache
+
+# Testing & Caches
+.pytest_cache/
+.coverage
+htmlcov/
+.vitest/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
