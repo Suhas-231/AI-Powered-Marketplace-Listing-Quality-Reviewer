@@ -8,6 +8,7 @@ import {
   Clock,
   Eye,
   Search,
+  Trash2,
 } from 'lucide-react';
 import api from '../api/client';
 import { StatusBadge } from '../components/StatusBadge';
@@ -24,13 +25,30 @@ export const AIReviews = () => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      // Fetch dashboard stats to get recent reviews or query listings
-      const res = await api.get('/api/dashboard/stats');
-      setReviews(res.data?.recent_reviews || []);
+      const res = await api.get('/api/reviews');
+      setReviews(res.data?.reviews || []);
     } catch (err) {
-      toast.error('Failed to load reviews: ' + err.message);
+      try {
+        const statsRes = await api.get('/api/dashboard/stats');
+        setReviews(statsRes.data?.recent_reviews || []);
+      } catch (e) {
+        toast.error('Failed to load reviews: ' + err.message);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm(`Are you sure you want to permanently delete review #${reviewId}? This will remove all associated findings and suggestions.`)) {
+      return;
+    }
+    try {
+      await api.delete(`/api/reviews/${reviewId}`);
+      toast.success(`Review #${reviewId} has been permanently deleted.`);
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete review');
     }
   };
 
@@ -98,7 +116,7 @@ export const AIReviews = () => {
                 <th className="py-3 px-4">Findings</th>
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Created</th>
-                <th className="py-3 px-4 text-right">Report</th>
+                <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -138,13 +156,24 @@ export const AIReviews = () => {
                     {new Date(rev.created_at).toLocaleDateString()}
                   </td>
                   <td className="py-3.5 px-4 text-right">
-                    <Link
-                      to={`/reviews/${rev.id}`}
-                      className="inline-flex items-center gap-1 font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50/50 hover:bg-indigo-50 px-2.5 py-1 rounded text-[11px] transition"
-                    >
-                      View Report
-                      <ArrowRight className="w-3 h-3" />
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        to={`/reviews/${rev.id}`}
+                        className="inline-flex items-center gap-1 font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50/50 hover:bg-indigo-50 px-2.5 py-1.5 rounded text-[11px] transition"
+                      >
+                        View Report
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteReview(rev.id)}
+                        title="Permanently delete review"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-[11px] font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 transition"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

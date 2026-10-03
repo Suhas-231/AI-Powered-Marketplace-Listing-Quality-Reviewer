@@ -256,6 +256,7 @@ export const Listings = () => {
                       key={l.id}
                       className="hover:bg-slate-50/60 transition-colors"
                     >
+
                       {/* Title & Description snippet */}
                       <td className="py-3.5 px-4 max-w-sm">
                         <Link
@@ -316,23 +317,14 @@ export const Listings = () => {
                             <Eye className="w-4 h-4" />
                           </Link>
 
-                          {/* Edit listing - allowed once revisions are applied or in draft */}
-                          {l.status === 'revisions_pending' ? (
-                            <span
-                              className="p-1 text-slate-300 cursor-not-allowed rounded"
-                              title="Please review and apply pending revisions before editing listing"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </span>
-                          ) : (
-                            <Link
-                              to={`/listings/${l.id}/edit`}
-                              className="p-1 text-slate-400 hover:text-slate-600 rounded transition"
-                              title="Edit Listing"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Link>
-                          )}
+                          {/* Edit listing */}
+                          <Link
+                            to={`/listings/${l.id}/edit`}
+                            className="p-1 text-slate-400 hover:text-slate-600 rounded transition"
+                            title="Edit Listing"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Link>
 
                           {/* Delete listing */}
                           <button

@@ -156,3 +156,66 @@ def get_listing_reviews(listing_id):
     listing = Listing.query.get_or_404(listing_id)
     reviews = Review.query.filter_by(listing_id=listing.id).order_by(Review.created_at.desc()).all()
     return jsonify([r.to_dict(include_findings=True) for r in reviews]), 200
+
+
+@bp.route('/reviews', methods=['GET'])
+def list_reviews():
+    """Retrieves all AI reviews, ordered by creation date descending."""
+    listing_id = request.args.get('listing_id', type=int)
+    query = Review.query
+    if listing_id:
+        query = query.filter_by(listing_id=listing_id)
+    reviews = query.order_by(Review.created_at.desc()).all()
+    return jsonify({
+        'success': True,
+        'reviews': [r.to_dict(include_findings=False) for r in reviews],
+        'total': len(reviews)
+    }), 200
+
+
+@bp.route('/reviews/<int:review_id>', methods=['DELETE'])
+def delete_review(review_id):
+    """
+    Permanently deletes an AI review and its associated findings and suggestions.
+    Updates the listing status back to 'draft' if no other reviews remain.
+    """
+    review = Review.query.get_or_404(review_id)
+    listing = Listing.query.get(review.listing_id)
+    user = User.query.first()
+
+    deleted_id = review.id
+    listing_id = review.listing_id
+
+    try:
+        db.session.delete(review)
+
+        # Revert listing status if no other reviews exist for this listing
+        if listing:
+            other_reviews = Review.query.filter(
+                Review.listing_id == listing_id,
+                Review.id != deleted_id
+            ).all()
+            if not other_reviews and listing.status in ['revisions_pending', 'reviewed', 'in_review']:
+                listing.status = 'draft'
+
+        db.session.commit()
+
+        AuditService.log(
+            entity_type='review',
+            entity_id=deleted_id,
+            action='deleted',
+            details={'listing_id': listing_id},
+            user_id=user.id if user else None
+        )
+
+        return jsonify({
+            'success': True,
+            'message': f'Review #{deleted_id} has been permanently deleted.'
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Failed to delete review #{review_id}: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Failed to delete review: {str(e)}'
+        }), 500

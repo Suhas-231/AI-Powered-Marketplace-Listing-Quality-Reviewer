@@ -76,3 +76,32 @@ def test_review_validation_failure_prevents_ai_review(client):
     data = res.get_json()
     assert data['success'] is False
     assert 'validation_errors' in data
+
+
+def test_delete_ai_review(client):
+    # Trigger review first
+    res = client.post('/api/listings/1/review')
+    assert res.status_code == 201
+    rev_id = res.get_json()['review']['id']
+
+    # Confirm listing status is revisions_pending
+    l_res = client.get('/api/listings/1')
+    assert l_res.get_json()['status'] == 'revisions_pending'
+
+    # Check reviews list
+    rev_list = client.get('/api/reviews')
+    assert rev_list.status_code == 200
+    assert rev_list.get_json()['total'] == 1
+
+    # Delete review
+    del_res = client.delete(f'/api/reviews/{rev_id}')
+    assert del_res.status_code == 200
+    assert del_res.get_json()['success'] is True
+
+    # Review should no longer exist
+    get_res = client.get(f'/api/reviews/{rev_id}')
+    assert get_res.status_code == 404
+
+    # Listing status should have reverted to draft
+    l_res2 = client.get('/api/listings/1')
+    assert l_res2.get_json()['status'] == 'draft'
