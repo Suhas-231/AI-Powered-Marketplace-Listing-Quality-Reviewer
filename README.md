@@ -6,9 +6,10 @@ A complete, production-oriented full-stack application built with **React**, **F
 
 ## 1. Project Overview
 
-E-commerce marketplaces face significant risks from misleading promotional superlatives, unverified medical/health promises, prohibited items, off-platform redirects, and counterfeit trademark violations. 
+E-commerce marketplaces face significant risks from misleading promotional superlatives, unverified medical/health promises, prohibited items, off-platform redirects, and counterfeit trademark violations.
 
 The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-pilot:
+
 1. Performs deterministic schema, price, category, and duplicate validation.
 2. Dynamically retrieves relevant demonstration policies from a MySQL knowledge base.
 3. Submits listings to Groq API (`openai/gpt-oss-20b`) with structured JSON schema constraints.
@@ -16,8 +17,9 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
 5. Implements a human-in-the-loop workflow (**Approve**, **Edit**, **Reject**) where revisions are only applied to listings upon explicit user confirmation.
 6. Maintains a persistent, tamper-evident audit log of all compliance decisions.
 
-> [!NOTE]
-> **Demonstration Knowledge Base Notice:** This application includes a demonstration policy knowledge base containing clearly labeled sample policies. It clearly distinguishes sample demonstration rules from official verified enterprise policies.
+**Note**
+
+**Demonstration Knowledge Base Notice:** This application includes a demonstration policy knowledge base containing clearly labeled sample policies. It clearly distinguishes sample demonstration rules from official verified enterprise policies.
 
 ---
 
@@ -34,9 +36,36 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
 
 ---
 
-## 3. Technology Stack
+## 3. Application Screenshots
+
+The following screenshots show the deployed application's main workflows.
+
+### Dashboard
+Overview of listing totals, pending reviews, approval/rejection metrics, policy issue severity, recent AI reviews, listings, and human review decisions.
+
+![Marketplace Quality Dashboard](docs/screenshots/01-dashboard.png)
+
+### Marketplace Listings
+Search, filter, sort, import listings from CSV, add new listings, and trigger reviews.
+
+![Marketplace Listings](docs/screenshots/02-marketplace-listings.png)
+
+### AI Compliance Reviews
+Review AI-generated compliance reports, finding severity counts, and review status. The application clearly labels its policy knowledge base as demonstration content.
+
+![AI Compliance Reviews](docs/screenshots/03-ai-compliance-reviews.png)
+
+### Create New Listing
+Enter listing title, description, category, seller, price, currency, tags, and product attributes. Save as a draft or save and run an AI review.
+
+![Create New Listing](docs/screenshots/04-create-new-listing.png)
+
+---
+
+## 14. Technology Stack
 
 ### Frontend
+
 - **Framework**: React 18 with Vite
 - **Styling**: Tailwind CSS
 - **Routing**: React Router DOM v6
@@ -45,6 +74,7 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
 - **Testing**: Vitest & React Testing Library with JSDOM
 
 ### Backend
+
 - **Language**: Python 3.11+
 - **Framework**: Flask
 - **ORM & Database**: Flask-SQLAlchemy, PyMySQL (MySQL 8.0+ supported, with automatic SQLite fallback for local developer agility)
@@ -53,6 +83,7 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
 - **Testing**: Pytest
 
 ### AI Integration
+
 - **SDK**: Official Groq Python SDK (`groq`)
 - **Default Model**: `openai/gpt-oss-20b` (configurable through `GROQ_MODEL`)
 - **Mode**: Structured Outputs with JSON Schema (`response_format={"type": "json_schema"}`) with graceful fallback to JSON Mode (`response_format={"type": "json_object"}`)
@@ -60,7 +91,7 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
 
 ---
 
-## 4. Architecture & Workflow
+## 14. Architecture & Workflow
 
 ```
 [ Seller / Reviewer ]
@@ -84,11 +115,12 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
    ├── Approve ──> Updates Listing field in MySQL + Logs ReviewAction & AuditLog
    ├── Edit ─────> Modifies suggestion text + Applies to Listing + Logs Action
    └── Reject ───> Retains original content + Records reason in AuditLog
+
 ```
 
 ---
 
-## 5. Folder Structure
+## 14. Folder Structure
 
 ```
 marketplace-listing-quality-reviewer/
@@ -125,8 +157,7 @@ marketplace-listing-quality-reviewer/
 │   │   └── __init__.py        # Flask app factory
 │   ├── requirements.txt
 │   ├── run.py                 # Development runner
-│   ├── .env.example
-│   └── .env
+│   └── .env.example          # Template only; create .env locally
 ├── frontend/
 │   ├── src/
 │   │   ├── api/client.js      # Axios instance with interceptors
@@ -155,14 +186,17 @@ marketplace-listing-quality-reviewer/
 ├── policy_documents/
 │   └── sample_policies.json   # 14 demonstration policies
 ├── render.yaml                # Render production deployment configuration
+├── docs/
+│   └── screenshots/          # Application screenshots used below
 ├── README.md
 ├── AGENT_USAGE.md
 └── .gitignore
+
 ```
 
 ---
 
-## 6. Prerequisites
+## 14. Prerequisites
 
 - **Python**: 3.11 or higher
 - **Node.js**: v18 or higher (v20+ recommended)
@@ -171,27 +205,28 @@ marketplace-listing-quality-reviewer/
 
 ---
 
-## 7. Installation & Local Setup
+## 14. Installation & Local Setup
 
 ### Step 1: Clone the Repository
-```bash
+
+```
 git clone <repository_url>
 cd "AI-powered Marketplace Listing Quality Reviewer"
 ```
 
 ### Step 2: Backend Setup
+
 1. Create and activate a Python virtual environment:
-   ```powershell
+   ```
    python -m venv venv
    .\venv\Scripts\Activate.ps1
    ```
 2. Install Python dependencies:
-   ```powershell
+   ```
    pip install -r backend/requirements.txt
    ```
-3. Configure environment variables:
-   Copy `backend/.env.example` to `backend/.env` and provide your credentials:
-   ```env
+3. Configure environment variables: Copy `backend/.env.example` to `backend/.env` and provide your credentials:
+   ```
    SECRET_KEY=your-secure-random-secret
    MYSQL_USER=root
    MYSQL_PASSWORD=your_password
@@ -203,31 +238,32 @@ cd "AI-powered Marketplace Listing Quality Reviewer"
    GROQ_MODEL=openai/gpt-oss-20b
    ```
    *(Note: If local MySQL is not running or credentials are not supplied, the backend automatically falls back to local SQLite without crashing).*
-
 4. Run the backend server:
-   ```powershell
+   ```
    cd backend
    python run.py
    ```
    The backend API runs on `http://127.0.0.1:5000`.
 
 ### Step 3: Frontend Setup
+
 1. Open a new terminal in the `frontend` directory:
-   ```powershell
+   ```
    cd frontend
    npm install
    ```
 2. Run the frontend development server:
-   ```powershell
+   ```
    npm run dev
    ```
    The React application runs on `http://localhost:5173`.
 
 ---
 
-## 8. Database Initialization & Seeding
+## 14. Database Initialization & Seeding
 
 The database initializes automatically when the backend boots:
+
 1. Verifies connectivity to MySQL or switches to SQLite.
 2. Creates all tables (`users`, `listings`, `policies`, `reviews`, `review_findings`, `suggestions`, `review_actions`, `audit_logs`).
 3. Seeds the default Compliance Officer user (`compliance@marketplace.local`).
@@ -236,64 +272,72 @@ The database initializes automatically when the backend boots:
 
 ---
 
-## 9. Running Tests
+## 14. Running Tests
 
 ### Backend Tests (Pytest)
+
 Run the 32 backend unit and integration tests (including validation, duplicate detection, policy verification, review workflow, Groq integration, and batch processing):
-```powershell
+
+```
 cd backend
 python -m pytest -v
 ```
+
 *All tests use isolated mock AI responses and in-memory SQLite, requiring zero external API credits.*
 
 ### Frontend Tests (Vitest)
+
 Run the 13 frontend component and workflow tests:
-```powershell
+
+```
 cd frontend
 npm test
 ```
 
 ### Frontend Production Build Verification
+
 Verify that the production asset bundle builds cleanly:
-```powershell
+
+```
 cd frontend
 npm run build
 ```
 
 ---
 
-## 10. API Endpoint Reference
+## 14. API Endpoint Reference
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/dashboard/stats` | Retrieves real database summary metrics and severity distributions |
-| `GET` | `/api/listings` | Lists listings with search, category/status filters, sorting, and pagination |
-| `POST` | `/api/listings` | Creates listing with deterministic validation |
-| `GET` | `/api/listings/<id>` | Retrieves single listing with review history |
-| `PUT` | `/api/listings/<id>` | Updates listing after validation |
-| `DELETE` | `/api/listings/<id>` | Deletes listing and logs audit entry |
-| `POST` | `/api/listings/<id>/validate` | Runs deterministic pre-validation only |
-| `POST` | `/api/listings/<id>/review` | Retrieves policies, calls Groq AI, verifies citations, stores findings |
-| `GET` | `/api/reviews/<id>` | Retrieves review report details and suggestions |
-| `POST` | `/api/suggestions/<id>/approve` | Approves revision, applies text to listing field, records action |
-| `PUT` | `/api/suggestions/<id>` | Edits suggested revision wording |
-| `POST` | `/api/suggestions/<id>/reject` | Rejects revision, preserves original content, logs reason |
-| `GET` | `/api/policies` | Lists policies with category/status filtering |
-| `POST` | `/api/policies` | Creates a new policy rule |
-| `PUT` | `/api/policies/<id>` | Updates policy or toggles active status |
-| `DELETE` | `/api/policies/<id>` | Deletes policy |
-| `POST` | `/api/batch/review` | Sequentially processes a batch of listing IDs with error isolation |
-| `POST` | `/api/batch/import-csv` | Parses CSV file/text, validates rows, and imports listings |
-| `GET` | `/api/history` | Global audit logs |
-| `GET` | `/api/listings/<id>/history` | Listing-specific audit trail & revision decisions |
-| `GET` | `/api/health` | Service health, database type, and Groq config status |
+| **Method** | **Endpoint**                    | **Description**                                                              |
+| ---------- | ------------------------------- | ---------------------------------------------------------------------------- |
+| `GET`      | `/api/dashboard/stats`          | Retrieves real database summary metrics and severity distributions           |
+| `GET`      | `/api/listings`                 | Lists listings with search, category/status filters, sorting, and pagination |
+| `POST`     | `/api/listings`                 | Creates listing with deterministic validation                                |
+| `GET`      | `/api/listings/<id>`            | Retrieves single listing with review history                                 |
+| `PUT`      | `/api/listings/<id>`            | Updates listing after validation                                             |
+| `DELETE`   | `/api/listings/<id>`            | Deletes listing and logs audit entry                                         |
+| `POST`     | `/api/listings/<id>/validate`   | Runs deterministic pre-validation only                                       |
+| `POST`     | `/api/listings/<id>/review`     | Retrieves policies, calls Groq AI, verifies citations, stores findings       |
+| `GET`      | `/api/reviews/<id>`             | Retrieves review report details and suggestions                              |
+| `POST`     | `/api/suggestions/<id>/approve` | Approves revision, applies text to listing field, records action             |
+| `PUT`      | `/api/suggestions/<id>`         | Edits suggested revision wording                                             |
+| `POST`     | `/api/suggestions/<id>/reject`  | Rejects revision, preserves original content, logs reason                    |
+| `GET`      | `/api/policies`                 | Lists policies with category/status filtering                                |
+| `POST`     | `/api/policies`                 | Creates a new policy rule                                                    |
+| `PUT`      | `/api/policies/<id>`            | Updates policy or toggles active status                                      |
+| `DELETE`   | `/api/policies/<id>`            | Deletes policy                                                               |
+| `POST`     | `/api/batch/review`             | Sequentially processes a batch of listing IDs with error isolation           |
+| `POST`     | `/api/batch/import-csv`         | Parses CSV file/text, validates rows, and imports listings                   |
+| `GET`      | `/api/history`                  | Global audit logs                                                            |
+| `GET`      | `/api/listings/<id>/history`    | Listing-specific audit trail & revision decisions                            |
+| `GET`      | `/api/health`                   | Service health, database type, and Groq config status                        |
 
 ---
 
-## 11. Sample Inputs for Testing Workflows
+## 14. Sample Inputs for Testing Workflows
 
 ### Sample Non-Compliant Listing (High Violations)
-```json
+
+```
 {
   "title": "MIRACLE HERBAL TEA 100% CURES DIABETES & CANCER FAST WEIGHT LOSS GUARANTEED",
   "description": "Our miraculous natural herbal detox tea is scientifically proven to completely cure chronic diabetes, arthritis, and cancer in 14 days! You will lose 15kg in one week with zero dieting. Order directly on WhatsApp at +1-555-0199 for 20% discount off-platform! Visit our secret shop at https://miracle-cures.fake/buy.",
@@ -311,7 +355,8 @@ npm run build
 ```
 
 ### Sample Compliant Listing
-```json
+
+```
 {
   "title": "UltraBass Pro Wireless Noise Cancelling Over-Ear Headphones Bluetooth 5.3",
   "description": "Experience pristine acoustics with the UltraBass Pro wireless headphones. Features active noise cancellation up to 35dB, 40mm neodymium dynamic audio drivers, ergonomic protein leather memory foam ear cushions, and up to 40 hours continuous playtime on a single charge. Includes USB-C fast charging cable, 3.5mm auxiliary cable, and protective travel case.",
@@ -332,35 +377,47 @@ npm run build
 
 ---
 
-## 12. Deployment Instructions
+## 14. Deployment Instructions
 
 ### Deploying Frontend to Vercel
+
 1. Push repository to GitHub.
 2. In Vercel, select **Add New Project** and choose the repository.
 3. Set **Root Directory** to `frontend`.
 4. Framework Preset: **Vite**.
 5. Set Environment Variable:
-   - `VITE_API_URL`: `https://your-backend-app.onrender.com`
+   - `VITE_API_URL`: `https://ai-powered-marketplace-listing-quality.onrender.com`
 6. Click **Deploy**. Single-page app routing is handled by `frontend/vercel.json`.
 
 ### Deploying Backend to Render
+
 1. In Render, select **New Web Service** and link the repository.
 2. Root Directory: `backend`.
 3. Runtime: **Python 3**.
 4. Build Command: `pip install -r requirements.txt`.
 5. Start Command: `gunicorn "app:create_app()" --bind 0.0.0.0:$PORT`.
-6. Add Environment Variables:
-   - `SECRET_KEY`: `<generate random secret>`
-   - `SQLALCHEMY_DATABASE_URI`: `mysql+pymysql://<user>:<password>@<hosted-mysql-host>:3306/<database>`
+6. Configure the required environment variables in Render (use Render's Secret fields for credentials):
+   - `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST`, `MYSQL_PORT`, and `MYSQL_DATABASE`: credentials and connection details for your managed MySQL database.
+   - `MYSQL_SSL_CA`: path to the CA certificate when the database provider requires TLS (for example, a Render Secret File path).
+   - `ALLOW_SQLITE_FALLBACK`: set to `false` for production so the service does not silently fall back to SQLite.
    - `AI_PROVIDER`: `groq`
-   - `GROQ_API_KEY`: `<your Groq API key>`
+   - `GROQ_API_KEY`: your Groq API key (keep it secret).
    - `GROQ_MODEL`: `openai/gpt-oss-20b`
-   - `CORS_ORIGINS`: `https://your-frontend-app.vercel.app`
+   - `CORS_ORIGINS`: `https://ai-powered-marketplace-listing-qual.vercel.app`
+   - `SECRET_KEY`: generate a strong, unique secret.
 7. Click **Deploy Web Service**.
+
+**Live application:** [Open the frontend](https://ai-powered-marketplace-listing-qual.vercel.app/)
+
+**Backend health check:** [Check API health](https://ai-powered-marketplace-listing-quality.onrender.com/api/health)
+
+**GitHub repository:** [Suhas-231/AI-Powered-Marketplace-Listing-Quality-Reviewer](https://github.com/Suhas-231/AI-Powered-Marketplace-Listing-Quality-Reviewer)
+
+> Never commit `.env` files, database passwords, Groq API keys, or private TLS certificates. Keep local credentials in ignored `.env` files and production credentials in the hosting provider's environment/secret settings.
 
 ---
 
-## 13. Limitations & Excluded Scope
+## 14. Limitations & Excluded Scope
 
 - **Image Analysis**: Current scope focuses on text attributes, specifications, and claim content. Product image OCR and computer vision inspection are out of scope.
 - **Multilingual Tokenization**: Demonstration policies and keyword indexing are optimized for English.
