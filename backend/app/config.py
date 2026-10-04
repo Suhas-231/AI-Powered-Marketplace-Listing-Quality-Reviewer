@@ -28,11 +28,7 @@ class Config:
         database=MYSQL_DB,
     )
 
-    SQLALCHEMY_DATABASE_URI = (
-        os.getenv("DATABASE_URL")
-        or os.getenv("SQLALCHEMY_DATABASE_URI")
-        or DEFAULT_MYSQL_URI
-    )
+    SQLALCHEMY_DATABASE_URI = DEFAULT_MYSQL_URI
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
