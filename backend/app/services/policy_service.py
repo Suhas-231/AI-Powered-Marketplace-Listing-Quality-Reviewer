@@ -57,7 +57,7 @@ class PolicyService:
     @staticmethod
     def format_policies_for_prompt(policies: List[Policy]) -> str:
         """
-        Formats policy records into a clear, structured prompt context for Gemini.
+        Formats policy records into a clear, structured prompt context for AI policy review.
         """
         if not policies:
             return "NO POLICIES SUPPLIED. Explicitly state that no applicable policy was found."

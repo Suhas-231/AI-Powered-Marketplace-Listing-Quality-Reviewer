@@ -24,14 +24,6 @@ export const CsvImportModal = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-  const handleLoadSample = () => {
-    const sample = `title,description,category,price,currency,listing_type,seller,tags,attributes
-"Ergonomic Memory Foam Lumbar Support Cushion","Ergonomically contoured high-density memory foam cushion with breathable mesh cover for lumbar back support.","Home & Kitchen",34.99,USD,Product,"ErgoLiving Direct","ergonomic,chair,lumbar","{""Material"":""Memory Foam"",""Washable"":""Yes""}"
-"Super Miracle Tea Cures Chronic Illness 100%","Drink daily to cure all medical conditions effortlessly. Contact WhatsApp +1-800-000 for direct shipping.","Health & Personal Care",49.00,USD,Product,"MiracleSeller","tea,health","{}"
-"Pure Titanium Lightweight Camping Cookware Set","Anodized pure titanium camping pot and frying pan set with folding handles and mesh storage bag.","Sports & Outdoors",59.50,USD,Product,"AlpineGear Co","camping,cookware,titanium","{""Weight"":""280g"",""Material"":""Grade 1 Titanium""}"`;
-    setCsvText(sample);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!csvText.trim()) {
@@ -78,17 +70,10 @@ export const CsvImportModal = ({ isOpen, onClose, onSuccess }) => {
 
         {/* Body */}
         <div className="p-6 overflow-y-auto space-y-4">
-          <div className="flex items-center justify-between">
+          <div>
             <span className="text-xs font-medium text-slate-600">
               Upload CSV file or paste standard CSV content:
             </span>
-            <button
-              type="button"
-              onClick={handleLoadSample}
-              className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
-            >
-              Load Sample Template
-            </button>
           </div>
 
           <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-indigo-300 transition-colors">

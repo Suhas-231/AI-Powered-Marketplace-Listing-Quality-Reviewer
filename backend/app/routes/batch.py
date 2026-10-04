@@ -11,7 +11,7 @@ from app.models.suggestion import Suggestion
 from app.models.user import User
 from app.services.validation_service import ValidationService
 from app.services.policy_service import PolicyService
-from app.services.gemini_service import GeminiService
+from app.services.groq_service import GroqService
 from app.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)
@@ -69,8 +69,8 @@ def batch_review():
             relevant_policies = PolicyService.retrieve_relevant_policies(listing)
             policy_context_text = PolicyService.format_policies_for_prompt(relevant_policies)
 
-            # Gemini review
-            raw_review = GeminiService.analyze_listing(listing_dict, policy_context_text)
+            # Groq review
+            raw_review = GroqService.analyze_listing(listing_dict, policy_context_text)
             verified_findings = PolicyService.verify_policy_citations(raw_review.get('findings', []))
 
             # Store Review & Findings
@@ -80,7 +80,7 @@ def batch_review():
                 summary=raw_review.get('summary', 'AI review completed.'),
                 overall_status=raw_review.get('overall_status', 'needs_review'),
                 policy_coverage=raw_review.get('policy_coverage', 'sample_policy'),
-                model_name=current_app.config.get('GEMINI_MODEL', 'gemini-2.5-flash'),
+                model_name=current_app.config.get('GROQ_MODEL', 'openai/gpt-oss-20b'),
                 assumptions=raw_review.get('assumptions', []),
                 unverifiable_claims=raw_review.get('unverifiable_claims', []),
                 raw_ai_response=json.dumps(raw_review)
@@ -131,11 +131,28 @@ def batch_review():
 
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Error processing listing #{l_id} in batch: {e}")
+            sanitized_err = GroqService.sanitize_error_message(str(e))
+            current_model = current_app.config.get('GROQ_MODEL', 'openai/gpt-oss-20b')
+            logger.error(f"Error processing listing #{l_id} in batch [model='{current_model}']: {sanitized_err}")
+            
+            # Log failure in audit trail without exposing API keys or sensitive data
+            AuditService.log(
+                entity_type='review',
+                entity_id=l_id,
+                action='failed',
+                details={
+                    'listing_id': l_id,
+                    'model': current_model,
+                    'error': sanitized_err,
+                    'batch': True
+                },
+                user_id=user.id if user else None
+            )
+
             results.append({
                 'listing_id': l_id,
                 'status': 'failed',
-                'error': str(e)
+                'error': sanitized_err
             })
 
     AuditService.log(

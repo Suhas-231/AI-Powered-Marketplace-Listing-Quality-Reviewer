@@ -14,15 +14,12 @@ import {
   ChevronRight,
   AlertCircle,
   Loader2,
-  CheckSquare,
-  Square,
 } from 'lucide-react';
 import api from '../api/client';
 import { StatusBadge } from '../components/StatusBadge';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { CsvImportModal } from '../components/CsvImportModal';
-import { BatchReviewModal } from '../components/BatchReviewModal';
 import { useToast } from '../context/ToastContext';
 
 export const Listings = () => {
@@ -41,10 +38,8 @@ export const Listings = () => {
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
 
-  // Modals & Batch Selection
-  const [selectedIds, setSelectedIds] = useState([]);
+  // Modals
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
-  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
 
   const toast = useToast();
 
@@ -106,14 +101,16 @@ export const Listings = () => {
   };
 
   const handleTriggerReview = async (listingId) => {
+    if (reviewingId) return;
     try {
       setReviewingId(listingId);
-      toast.info('Sending listing to Gemini for compliance review...');
+      toast.info('Sending listing for AI compliance review...');
       const res = await api.post(`/api/listings/${listingId}/review`);
+      const newReviewId = res.data?.review?.id || res.data?.review_id;
       toast.success('AI Review generated successfully!');
       fetchListings();
-      if (res.data?.review?.id) {
-        window.location.assign(`/reviews/${res.data.review.id}`);
+      if (newReviewId) {
+        window.location.assign(`/reviews/${newReviewId}`);
       }
     } catch (err) {
       toast.error(err.message || 'AI review failed');
@@ -127,25 +124,10 @@ export const Listings = () => {
     try {
       await api.delete(`/api/listings/${listingId}`);
       toast.success(`Listing #${listingId} deleted.`);
-      setSelectedIds((prev) => prev.filter((id) => id !== listingId));
       fetchListings();
     } catch (err) {
       toast.error('Failed to delete listing: ' + err.message);
     }
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === listings.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(listings.map((l) => l.id));
-    }
-  };
-
-  const toggleSelectOne = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
   };
 
   return (
@@ -165,24 +147,6 @@ export const Listings = () => {
           >
             <Upload className="w-3.5 h-3.5 text-slate-500" />
             Import CSV
-          </button>
-
-          <button
-            onClick={() => {
-              if (selectedIds.length === 0) {
-                toast.info('Please select one or more listings with the checkboxes to batch review.');
-              } else {
-                setIsBatchModalOpen(true);
-              }
-            }}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold shadow-2xs transition border ${
-              selectedIds.length > 0
-                ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
-                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-            Batch Review {selectedIds.length > 0 ? `(${selectedIds.length})` : ''}
           </button>
 
           <Link
@@ -277,19 +241,6 @@ export const Listings = () => {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-4 w-10 text-center">
-                    <button
-                      onClick={toggleSelectAll}
-                      className="text-slate-500 hover:text-slate-800"
-                      title="Select All"
-                    >
-                      {selectedIds.length === listings.length && listings.length > 0 ? (
-                        <CheckSquare className="w-4 h-4 text-indigo-600" />
-                      ) : (
-                        <Square className="w-4 h-4" />
-                      )}
-                    </button>
-                  </th>
                   <th className="py-3 px-4">Item Details</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4">Price</th>
@@ -300,30 +251,13 @@ export const Listings = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {listings.map((l) => {
-                  const isSelected = selectedIds.includes(l.id);
                   const isReviewing = reviewingId === l.id;
 
                   return (
                     <tr
                       key={l.id}
-                      className={`hover:bg-slate-50/60 transition-colors ${
-                        isSelected ? 'bg-indigo-50/30' : ''
-                      }`}
+                      className="hover:bg-slate-50/60 transition-colors"
                     >
-                      {/* Checkbox */}
-                      <td className="py-3.5 px-4 text-center">
-                        <button
-                          onClick={() => toggleSelectOne(l.id)}
-                          className="text-slate-400 hover:text-slate-700"
-                        >
-                          {isSelected ? (
-                            <CheckSquare className="w-4 h-4 text-indigo-600" />
-                          ) : (
-                            <Square className="w-4 h-4" />
-                          )}
-                        </button>
-                      </td>
-
                       {/* Title & Description snippet */}
                       <td className="py-3.5 px-4 max-w-sm">
                         <Link
@@ -454,17 +388,6 @@ export const Listings = () => {
         onClose={() => setIsCsvModalOpen(false)}
         onSuccess={() => {
           setIsCsvModalOpen(false);
-          fetchListings();
-        }}
-      />
-
-      {/* Batch Review Modal */}
-      <BatchReviewModal
-        isOpen={isBatchModalOpen}
-        onClose={() => setIsBatchModalOpen(false)}
-        selectedListingIds={selectedIds}
-        onSuccess={() => {
-          setSelectedIds([]);
           fetchListings();
         }}
       />

@@ -27,9 +27,14 @@ class Config:
         "pool_pre_ping": True,
     }
 
-    # Gemini configuration
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or ""
-    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    # AI Provider configuration (Groq)
+    AI_PROVIDER = os.getenv("AI_PROVIDER", "groq")
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+    GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
+
+    # Legacy/Fallback configuration
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 
     # Listing Validation configuration
     MAX_TITLE_LENGTH = int(os.getenv("MAX_TITLE_LENGTH", "150"))
@@ -61,5 +66,8 @@ class Config:
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    AI_PROVIDER = "groq"
+    GROQ_API_KEY = "test-mock-key"
+    GROQ_MODEL = "openai/gpt-oss-20b"
     GEMINI_API_KEY = "test-mock-key"
     SQLALCHEMY_ENGINE_OPTIONS = {}

@@ -41,7 +41,7 @@ def get_listing_history(listing_id):
     logs = AuditLog.query.filter_by(entity_type='listing', entity_id=listing.id).order_by(AuditLog.created_at.desc()).all()
 
     # 2. Reviews with findings
-    reviews = Review.query.filter_by(listing_id=listing.id).order_by(Review.created_at.desc()).all()
+    reviews = Review.query.filter_by(listing_id=listing.id, status='completed').order_by(Review.created_at.desc(), Review.id.desc()).all()
 
     # 3. Actions taken on suggestions related to this listing
     suggestion_ids = []

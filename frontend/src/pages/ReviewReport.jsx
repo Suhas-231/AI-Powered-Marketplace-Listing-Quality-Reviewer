@@ -12,7 +12,6 @@ import {
   BookOpen,
   Check,
   X,
-  RotateCcw,
   ShieldAlert,
   Loader2,
   Trash2,
@@ -49,6 +48,7 @@ export const ReviewReport = () => {
   };
 
   useEffect(() => {
+    setReview(null);
     fetchReview();
   }, [id]);
 
@@ -165,16 +165,18 @@ export const ReviewReport = () => {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleDeleteReview}
-          disabled={actionLoading}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-semibold shadow-2xs transition"
-          title="Permanently delete this review"
-        >
-          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-          Delete Review
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleDeleteReview}
+            disabled={actionLoading}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-semibold shadow-2xs transition disabled:opacity-50"
+            title="Permanently delete this review"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+            Delete Review
+          </button>
+        </div>
       </div>
 
       {/* Mandatory Demonstration Notice Banner */}

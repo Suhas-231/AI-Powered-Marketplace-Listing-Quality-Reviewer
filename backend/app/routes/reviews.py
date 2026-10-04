@@ -8,7 +8,7 @@ from app.models.suggestion import Suggestion
 from app.models.user import User
 from app.services.validation_service import ValidationService
 from app.services.policy_service import PolicyService
-from app.services.gemini_service import GeminiService
+from app.services.groq_service import GroqService
 from app.services.audit_service import AuditService
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ bp = Blueprint('reviews', __name__, url_prefix='/api')
 def trigger_ai_review(listing_id):
     """
     Submits a listing for AI policy review.
-    Runs deterministic validation first, retrieves policies, calls Gemini, verifies citations,
+    Runs deterministic validation first, retrieves policies, calls Groq AI, verifies citations,
     and creates review + findings + suggestion records.
     """
     listing = Listing.query.get_or_404(listing_id)
@@ -49,26 +49,38 @@ def trigger_ai_review(listing_id):
     relevant_policies = PolicyService.retrieve_relevant_policies(listing)
     policy_context_text = PolicyService.format_policies_for_prompt(relevant_policies)
 
-    # Step 3 & 4: Call Gemini via official google-genai SDK
+    # Step 3 & 4: Call Groq via official groq SDK
     try:
-        raw_review = GeminiService.analyze_listing(listing_dict, policy_context_text)
+        raw_review = GroqService.analyze_listing(listing_dict, policy_context_text)
     except Exception as e:
-        logger.error(f"AI review execution failed for listing #{listing_id}: {e}")
-        # Record failed review attempt
-        failed_review = Review(
-            listing_id=listing.id,
-            status='failed',
-            summary=f"AI review failed: {str(e)}",
-            overall_status='flagged',
-            model_name=current_app.config.get('GEMINI_MODEL', 'gemini-2.5-flash')
+        sanitized_err = GroqService.sanitize_error_message(str(e))
+        logger.error(f"AI review execution failed for listing #{listing_id}: {sanitized_err}")
+        db.session.rollback()
+
+        # Log audit entry for the failed attempt
+        model_name = current_app.config.get('GROQ_MODEL', 'openai/gpt-oss-20b')
+        AuditService.log(
+            entity_type='review',
+            entity_id=listing.id,
+            action='failed',
+            details={
+                'listing_id': listing.id,
+                'error': sanitized_err,
+                'model': model_name
+            },
+            user_id=user.id if user else None
         )
-        db.session.add(failed_review)
-        db.session.commit()
+
+        status_code = 503 if ('503' in sanitized_err or 'UNAVAILABLE' in sanitized_err.upper()) else (
+            429 if ('429' in sanitized_err or 'RATELIMIT' in sanitized_err.upper() or 'RESOURCE_EXHAUSTED' in sanitized_err.upper()) else (
+                400 if '400' in sanitized_err or 'json_validate' in sanitized_err.lower() else 502
+            )
+        )
         return jsonify({
             'success': False,
-            'message': f"AI review failed: {str(e)}",
-            'review_id': failed_review.id
-        }), 502
+            'message': sanitized_err,
+            'listing_id': listing.id
+        }), status_code
 
     # Step 5 & 6: Verify citations against actual database policies
     findings = raw_review.get('findings', [])
@@ -81,7 +93,7 @@ def trigger_ai_review(listing_id):
         summary=raw_review.get('summary', 'AI review completed successfully.'),
         overall_status=raw_review.get('overall_status', 'needs_review'),
         policy_coverage=raw_review.get('policy_coverage', 'sample_policy'),
-        model_name=current_app.config.get('GEMINI_MODEL', 'gemini-2.5-flash'),
+        model_name=current_app.config.get('GROQ_MODEL', 'openai/gpt-oss-20b'),
         assumptions=raw_review.get('assumptions', []),
         unverifiable_claims=raw_review.get('unverifiable_claims', []),
         raw_ai_response=json.dumps(raw_review)
@@ -154,18 +166,18 @@ def get_review(review_id):
 def get_listing_reviews(listing_id):
     """Retrieves review history for a specific listing."""
     listing = Listing.query.get_or_404(listing_id)
-    reviews = Review.query.filter_by(listing_id=listing.id).order_by(Review.created_at.desc()).all()
+    reviews = Review.query.filter_by(listing_id=listing.id, status='completed').order_by(Review.created_at.desc(), Review.id.desc()).all()
     return jsonify([r.to_dict(include_findings=True) for r in reviews]), 200
 
 
 @bp.route('/reviews', methods=['GET'])
 def list_reviews():
-    """Retrieves all AI reviews, ordered by creation date descending."""
+    """Retrieves all completed AI reviews, ordered by creation date descending."""
     listing_id = request.args.get('listing_id', type=int)
-    query = Review.query
+    query = Review.query.filter_by(status='completed')
     if listing_id:
         query = query.filter_by(listing_id=listing_id)
-    reviews = query.order_by(Review.created_at.desc()).all()
+    reviews = query.order_by(Review.created_at.desc(), Review.id.desc()).all()
     return jsonify({
         'success': True,
         'reviews': [r.to_dict(include_findings=False) for r in reviews],

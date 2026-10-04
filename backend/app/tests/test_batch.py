@@ -63,3 +63,80 @@ def test_csv_batch_import(client):
     assert data['success'] is True
     assert data['imported_count'] == 1
     assert data['errors_count'] == 1
+
+def test_batch_mixed_listings_with_error_isolation_and_retry(client):
+    """
+    Tests batch review of three listings:
+    - Listing 1: normal compliant listing (succeeds)
+    - Listing 2: listing with medical claims (succeeds with high severity findings)
+    - Listing 3: simulated listing failure (e.g. json_validate_failed)
+    Verifies that:
+    1. One failure does not halt processing of other listings in batch.
+    2. Successful results are persisted.
+    3. Retrying only the failed listing succeeds and creates no duplicate reviews.
+    """
+    from unittest.mock import patch
+    from app.services.groq_service import GroqService
+    from app.models.review import Review
+
+    # Create listing 3
+    with client.application.app_context():
+        l3 = Listing(
+            title="Listing 3 Candidate For Retry",
+            description="High quality cotton canvas backpack with laptop compartment.",
+            category="Fashion & Apparel",
+            price=49.0,
+            seller="Backpack Co"
+        )
+        db.session.add(l3)
+        db.session.commit()
+        l3_id = l3.id
+
+    # Mock GroqService: Listing 1 & 2 succeed, Listing 3 fails with json_validate_failed
+    original_analyze = GroqService.analyze_listing
+
+    def selective_analyze(listing_dict, policies):
+        if listing_dict.get('title') == "Listing 3 Candidate For Retry":
+            raise RuntimeError("Groq API model 'openai/gpt-oss-20b' failed JSON validation (json_validate_failed) after 4 attempts.")
+        return original_analyze(listing_dict, policies)
+
+    with patch('app.routes.batch.GroqService.analyze_listing', side_effect=selective_analyze):
+        batch_res = client.post('/api/batch/review', json={'listing_ids': [1, 2, l3_id]})
+        assert batch_res.status_code == 200
+        batch_data = batch_res.get_json()
+        assert batch_data['total_processed'] == 3
+        assert batch_data['successful'] == 2
+        assert batch_data['failed'] == 1
+
+        results = batch_data['results']
+        failed_item = next(r for r in results if r['listing_id'] == l3_id)
+        assert failed_item['status'] == 'failed'
+        assert 'json_validate_failed' in failed_item['error']
+
+    # Verify database state after initial batch:
+    with client.application.app_context():
+        reviews_1 = Review.query.filter_by(listing_id=1).all()
+        reviews_2 = Review.query.filter_by(listing_id=2).all()
+        reviews_3 = Review.query.filter_by(listing_id=l3_id).all()
+        assert len(reviews_1) == 1
+        assert len(reviews_2) == 1
+        assert len(reviews_3) == 0  # Failed listing rolled back, no corrupted record
+
+    # Now simulate 'Retry Failed Listings': submit ONLY failed listing ID [l3_id]
+    retry_res = client.post('/api/batch/review', json={'listing_ids': [l3_id]})
+    assert retry_res.status_code == 200
+    retry_data = retry_res.get_json()
+    assert retry_data['successful'] == 1
+    assert retry_data['failed'] == 0
+
+    # Verify database state after retry:
+    with client.application.app_context():
+        reviews_1_post = Review.query.filter_by(listing_id=1).all()
+        reviews_2_post = Review.query.filter_by(listing_id=2).all()
+        reviews_3_post = Review.query.filter_by(listing_id=l3_id).all()
+        # Listing 3 now has exactly 1 review
+        assert len(reviews_3_post) == 1
+        assert reviews_3_post[0].status == 'completed'
+        # Listings 1 and 2 STILL have exactly 1 review (no duplicates!)
+        assert len(reviews_1_post) == 1
+        assert len(reviews_2_post) == 1

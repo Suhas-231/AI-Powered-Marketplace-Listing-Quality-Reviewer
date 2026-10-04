@@ -22,9 +22,20 @@ class Listing(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    reviews = db.relationship('Review', backref='listing', lazy=True, cascade='all, delete-orphan', order_by='desc(Review.created_at)')
+    reviews = db.relationship('Review', backref='listing', lazy=True, cascade='all, delete-orphan', order_by='desc(Review.created_at), desc(Review.id)')
+
+    @property
+    def latest_completed_review(self):
+        """Returns the most recent successfully completed review."""
+        if not self.reviews:
+            return None
+        for r in self.reviews:
+            if r.status == 'completed':
+                return r
+        return None
 
     def to_dict(self, include_reviews=False):
+        latest = self.latest_completed_review
         data = {
             'id': self.id,
             'user_id': self.user_id,
@@ -41,8 +52,8 @@ class Listing(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'review_count': len(self.reviews) if self.reviews else 0,
-            'latest_review_status': self.reviews[0].overall_status if self.reviews else None,
-            'latest_review_id': self.reviews[0].id if self.reviews else None
+            'latest_review_status': latest.overall_status if latest else None,
+            'latest_review_id': latest.id if latest else None
         }
         if include_reviews and self.reviews:
             data['reviews'] = [r.to_dict(include_findings=True) for r in self.reviews]

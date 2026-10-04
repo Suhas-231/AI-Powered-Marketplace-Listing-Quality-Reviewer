@@ -1,6 +1,6 @@
 # Marketplace Listing Quality Reviewer
 
-A complete, production-oriented full-stack application built with **React**, **Flask**, **MySQL**, and **Google Gemini API** (`google-genai` SDK) to audit product and service listings against marketplace policies, identify non-compliant claims, and streamline human-in-the-loop content revision.
+A complete, production-oriented full-stack application built with **React**, **Flask**, **MySQL**, and **Groq API** (`groq` SDK) to audit product and service listings against marketplace policies, identify non-compliant claims, and streamline human-in-the-loop content revision.
 
 ---
 
@@ -11,7 +11,7 @@ E-commerce marketplaces face significant risks from misleading promotional super
 The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-pilot:
 1. Performs deterministic schema, price, category, and duplicate validation.
 2. Dynamically retrieves relevant demonstration policies from a MySQL knowledge base.
-3. Submits listings to Google Gemini (`gemini-2.5-flash`) with structured JSON schema constraints.
+3. Submits listings to Groq API (`openai/gpt-oss-20b`) with structured JSON schema constraints.
 4. Verifies cited policy sections against real database records to prevent LLM hallucination.
 5. Implements a human-in-the-loop workflow (**Approve**, **Edit**, **Reject**) where revisions are only applied to listings upon explicit user confirmation.
 6. Maintains a persistent, tamper-evident audit log of all compliance decisions.
@@ -25,7 +25,7 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
 
 - **Executive Quality Dashboard**: Real-time summary KPI cards, severity distribution breakdown (High: Red, Medium: Amber, Low: Blue), recent reviews, and recent human approval decisions.
 - **Deterministic Validation Engine**: Python-based validation enforcing required fields, positive numeric prices, category whitelisting, title/description character limits, and duplicate title detection.
-- **AI Compliance Agent**: Integrated via the official Google Gen AI Python SDK (`google-genai`), generating structured findings, severity badges, and compliant rewrites.
+- **AI Compliance Agent**: Integrated via the official Groq Python SDK (`groq`), generating structured findings, severity badges, and compliant rewrites.
 - **Citation Verification**: Cross-references AI citations with active database records to flag and prevent hallucinated policy references.
 - **Human Approval Workflow**: Field-by-field review with side-by-side visual comparisons (Original vs AI Suggestion vs Final), allowing reviewers to Approve, Edit, or Reject revisions.
 - **Batch Processing & CSV Import**: Import product catalogs via CSV with row-by-row validation, and execute sequential batch AI reviews with per-item failure isolation.
@@ -53,9 +53,9 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
 - **Testing**: Pytest
 
 ### AI Integration
-- **SDK**: Official Google Gen AI Python SDK (`google-genai`)
-- **Default Model**: `gemini-2.5-flash` (configurable through `GEMINI_MODEL`)
-- **Mode**: Structured JSON (`response_mime_type="application/json"`)
+- **SDK**: Official Groq Python SDK (`groq`)
+- **Default Model**: `openai/gpt-oss-20b` (configurable through `GROQ_MODEL`)
+- **Mode**: Structured Outputs with JSON Schema (`response_format={"type": "json_schema"}`) with graceful fallback to JSON Mode (`response_format={"type": "json_object"}`)
 - **Security**: Strictly backend-only; API keys are never exposed to the frontend client.
 
 ---
@@ -72,7 +72,7 @@ The **Marketplace Listing Quality Reviewer** acts as an automated compliance co-
 [ Flask Application Factory ]
    ├── Step 1: Deterministic Validation Engine (Python regex, duplicate check)
    ├── Step 2: Policy Retrieval Service (Keyword & Category MySQL query)
-   ├── Step 3: Google Gemini Engine (`google-genai` SDK + JSON enforcement)
+   ├── Step 3: Groq AI Engine (`groq` SDK + JSON Schema enforcement)
    ├── Step 4: Policy Citation Verifier (Checks policy_id in DB)
    └── Step 5: Database Transactions (db.session: Reviews, Findings, Suggestions)
         │
@@ -115,10 +115,10 @@ marketplace-listing-quality-reviewer/
 │   │   │   └── __init__.py
 │   │   ├── services/          # Business logic & integrations
 │   │   │   ├── audit_service.py       # Persistent audit logger
-│   │   │   ├── gemini_service.py      # Google Gen AI SDK integration
+│   │   │   ├── groq_service.py        # Groq SDK integration & JSON schema enforcement
 │   │   │   ├── policy_service.py      # Policy retrieval & citation verifier
 │   │   │   └── validation_service.py  # Deterministic validation engine
-│   │   ├── tests/             # Pytest test suite (16 tests)
+│   │   ├── tests/             # Pytest test suite (32 tests)
 │   │   ├── utils/             # Data seeders & response helpers
 │   │   ├── config.py          # App configuration
 │   │   ├── database.py        # Database setup & resilience
@@ -167,7 +167,7 @@ marketplace-listing-quality-reviewer/
 - **Python**: 3.11 or higher
 - **Node.js**: v18 or higher (v20+ recommended)
 - **MySQL**: MySQL Server 8.0+ (optional for local dev: SQLite works out-of-the-box)
-- **Gemini API Key**: From [Google AI Studio](https://aistudio.google.com/)
+- **Groq API Key**: From [Groq Console](https://console.groq.com/keys)
 
 ---
 
@@ -198,8 +198,9 @@ cd "AI-powered Marketplace Listing Quality Reviewer"
    MYSQL_HOST=localhost
    MYSQL_PORT=3306
    MYSQL_DATABASE=marketplace_reviewer
-   GEMINI_API_KEY=AIzaSy...your_gemini_api_key_here
-   GEMINI_MODEL=gemini-2.5-flash
+   AI_PROVIDER=groq
+   GROQ_API_KEY=your_groq_api_key_here
+   GROQ_MODEL=openai/gpt-oss-20b
    ```
    *(Note: If local MySQL is not running or credentials are not supplied, the backend automatically falls back to local SQLite without crashing).*
 
@@ -238,7 +239,7 @@ The database initializes automatically when the backend boots:
 ## 9. Running Tests
 
 ### Backend Tests (Pytest)
-Run the 16 backend unit and integration tests (including validation, duplicate detection, policy verification, review workflow, and batch processing):
+Run the 32 backend unit and integration tests (including validation, duplicate detection, policy verification, review workflow, Groq integration, and batch processing):
 ```powershell
 cd backend
 python -m pytest -v
@@ -246,7 +247,7 @@ python -m pytest -v
 *All tests use isolated mock AI responses and in-memory SQLite, requiring zero external API credits.*
 
 ### Frontend Tests (Vitest)
-Run the 8 frontend component and workflow tests:
+Run the 13 frontend component and workflow tests:
 ```powershell
 cd frontend
 npm test
@@ -272,7 +273,7 @@ npm run build
 | `PUT` | `/api/listings/<id>` | Updates listing after validation |
 | `DELETE` | `/api/listings/<id>` | Deletes listing and logs audit entry |
 | `POST` | `/api/listings/<id>/validate` | Runs deterministic pre-validation only |
-| `POST` | `/api/listings/<id>/review` | Retrieves policies, calls Gemini AI, verifies citations, stores findings |
+| `POST` | `/api/listings/<id>/review` | Retrieves policies, calls Groq AI, verifies citations, stores findings |
 | `GET` | `/api/reviews/<id>` | Retrieves review report details and suggestions |
 | `POST` | `/api/suggestions/<id>/approve` | Approves revision, applies text to listing field, records action |
 | `PUT` | `/api/suggestions/<id>` | Edits suggested revision wording |
@@ -285,7 +286,7 @@ npm run build
 | `POST` | `/api/batch/import-csv` | Parses CSV file/text, validates rows, and imports listings |
 | `GET` | `/api/history` | Global audit logs |
 | `GET` | `/api/listings/<id>/history` | Listing-specific audit trail & revision decisions |
-| `GET` | `/api/health` | Service health, database type, and Gemini config status |
+| `GET` | `/api/health` | Service health, database type, and Groq config status |
 
 ---
 
@@ -351,8 +352,9 @@ npm run build
 6. Add Environment Variables:
    - `SECRET_KEY`: `<generate random secret>`
    - `SQLALCHEMY_DATABASE_URI`: `mysql+pymysql://<user>:<password>@<hosted-mysql-host>:3306/<database>`
-   - `GEMINI_API_KEY`: `<your Google Gemini API key>`
-   - `GEMINI_MODEL`: `gemini-2.5-flash`
+   - `AI_PROVIDER`: `groq`
+   - `GROQ_API_KEY`: `<your Groq API key>`
+   - `GROQ_MODEL`: `openai/gpt-oss-20b`
    - `CORS_ORIGINS`: `https://your-frontend-app.vercel.app`
 7. Click **Deploy Web Service**.
 

@@ -1,35 +1,36 @@
-# Environments & Secrets
+
+# Environment variables and secrets
 .env
-.env.local
-.env.*.local
-venv/
-.venv/
-env/
+.env.*
+!.env.example
+
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+.pytest_cache/
+venv/
+.venv/
+
+# Flask
+instance/
 
 # Database files
 *.db
 *.sqlite
 *.sqlite3
-marketplace_reviewer.db
 
-# Node.js & Frontend Build
-frontend/node_modules/
-frontend/dist/
+# Node
+node_modules/
 dist/
-.eslintcache
-.stylelintcache
+npm-debug.log*
 
-# Testing & Caches
-.pytest_cache/
-.coverage
-htmlcov/
-.vitest/
-
-# OS and IDE files
-.DS_Store
-Thumbs.db
+# IDE and OS
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
+
+# Test and coverage
+.coverage
+htmlcov/

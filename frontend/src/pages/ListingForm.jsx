@@ -181,7 +181,7 @@ export const ListingForm = () => {
       }
 
       if (submitForReview && savedListing?.id) {
-        toast.info('Triggering AI compliance evaluation with Gemini...');
+        toast.info('Triggering AI compliance evaluation...');
         const reviewRes = await api.post(`/api/listings/${savedListing.id}/review`);
         toast.success('AI Review completed!');
         navigate(`/reviews/${reviewRes.data.review.id}`);

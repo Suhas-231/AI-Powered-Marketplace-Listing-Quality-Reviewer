@@ -13,6 +13,8 @@ import {
   ArrowRight,
   ShieldAlert,
   Loader2,
+  AlertCircle,
+  X,
 } from 'lucide-react';
 import api from '../api/client';
 import { StatusBadge } from '../components/StatusBadge';
@@ -24,6 +26,8 @@ export const ListingDetail = () => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviewing, setReviewing] = useState(false);
+  const [reviewStatusText, setReviewStatusText] = useState('');
+  const [reviewError, setReviewError] = useState(null);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -41,24 +45,35 @@ export const ListingDetail = () => {
   };
 
   useEffect(() => {
+    setReviewError(null);
     fetchListing();
   }, [id]);
 
   const handleTriggerReview = async () => {
+    if (reviewing) return;
     try {
       setReviewing(true);
-      toast.info('Sending listing to Gemini for compliance evaluation...');
+      setReviewError(null);
+      setReviewStatusText('Connecting to AI policy reviewer...');
+      toast.info('Sending listing for AI compliance evaluation...');
+      
       const res = await api.post(`/api/listings/${id}/review`);
-      toast.success('AI Review generated successfully!');
-      if (res.data?.review?.id) {
-        navigate(`/reviews/${res.data.review.id}`);
+      const newReviewId = res.data?.review?.id || res.data?.review_id;
+      
+      if (newReviewId) {
+        toast.success(`AI Review #${newReviewId} generated successfully!`);
+        navigate(`/reviews/${newReviewId}`);
       } else {
-        fetchListing();
+        await fetchListing();
       }
     } catch (err) {
-      toast.error(err.message || 'AI review failed');
+      const errorMsg = err.message || 'AI review failed';
+      setReviewError(errorMsg);
+      toast.error(errorMsg);
+      await fetchListing();
     } finally {
       setReviewing(false);
+      setReviewStatusText('');
     }
   };
 
@@ -139,6 +154,47 @@ export const ListingDetail = () => {
           </button>
         </div>
       </div>
+
+      {/* Active Reviewing Progress Banner */}
+      {reviewing && (
+        <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center gap-3 text-xs text-indigo-900 shadow-2xs">
+          <Loader2 className="w-4 h-4 text-indigo-600 animate-spin flex-shrink-0" />
+          <span>
+            <strong>AI Policy Review in progress:</strong> {reviewStatusText || 'Evaluating content against marketplace policies...'}
+          </span>
+        </div>
+      )}
+
+      {/* Review Error Banner */}
+      {reviewError && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-900 shadow-2xs">
+          <div className="flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold block">AI Review Attempt Failed:</span>
+              <span>{reviewError}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+            <button
+              type="button"
+              onClick={handleTriggerReview}
+              disabled={reviewing}
+              className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold transition"
+            >
+              Try Again
+            </button>
+            <button
+              type="button"
+              onClick={() => setReviewError(null)}
+              className="p-1 text-rose-500 hover:text-rose-700 rounded"
+              title="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Revisions Applied Notice */}
       {listing.status === 'revisions_applied' && (
@@ -229,12 +285,12 @@ export const ListingDetail = () => {
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
             <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              AI Compliance Reviews ({listing.reviews?.length || 0})
+              Review History ({listing.reviews?.length || 0})
             </h2>
 
             {!listing.reviews || listing.reviews.length === 0 ? (
               <p className="text-xs text-slate-500 py-3">
-                No reviews yet. Click 'Run AI Review' to inspect policy compliance.
+                No reviews recorded yet. Click 'Run AI Review' to inspect policy compliance.
               </p>
             ) : (
               <div className="space-y-2.5">
@@ -251,7 +307,11 @@ export const ListingDetail = () => {
                     <p className="text-[11px] text-slate-500 line-clamp-1">{rev.summary}</p>
                     <div className="flex items-center justify-between pt-1 text-[11px] text-indigo-600 font-semibold">
                       <span>{rev.findings?.length || 0} findings recorded</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      {rev.created_at && (
+                        <span className="text-[10px] text-slate-400 font-normal">
+                          {new Date(rev.created_at).toLocaleDateString()}
+                        </span>
+                      )}
                     </div>
                   </Link>
                 ))}

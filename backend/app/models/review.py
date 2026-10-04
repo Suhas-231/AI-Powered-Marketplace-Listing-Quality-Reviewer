@@ -10,7 +10,7 @@ class Review(db.Model):
     summary = db.Column(db.Text, nullable=True)
     overall_status = db.Column(db.String(50), nullable=False, default='needs_review') # 'needs_review', 'flagged', 'compliant'
     policy_coverage = db.Column(db.String(100), default='sample_policy') # 'sample_policy', 'official_policy', 'none'
-    model_name = db.Column(db.String(100), nullable=False, default='gemini-2.5-flash')
+    model_name = db.Column(db.String(100), nullable=False, default='openai/gpt-oss-20b')
     assumptions = db.Column(db.JSON, nullable=True, default=list)
     unverifiable_claims = db.Column(db.JSON, nullable=True, default=list)
     raw_ai_response = db.Column(db.Text, nullable=True)
