@@ -1,3 +1,4 @@
+
 services:
   - type: web
     name: marketplace-reviewer-backend
@@ -5,16 +6,39 @@ services:
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT
+
     envVars:
       - key: SECRET_KEY
         generateValue: true
-      - key: SQLALCHEMY_DATABASE_URI
+
+      # Aiven MySQL credentials
+      - key: MYSQL_USER
         sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_PORT
+        sync: false
+      - key: MYSQL_DATABASE
+        sync: false
+
+      # Render Secret File location
+      - key: MYSQL_SSL_CA
+        value: /etc/secrets/ca.pem
+
+      # Prevent accidental SQLite fallback in production
+      - key: ALLOW_SQLITE_FALLBACK
+        value: "false"
+
+      # Groq AI
       - key: AI_PROVIDER
         value: groq
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
         value: openai/gpt-oss-20b
+
+      # Configure the actual Vercel URL after frontend deployment
       - key: CORS_ORIGINS
-        value: "*"
+        sync: false

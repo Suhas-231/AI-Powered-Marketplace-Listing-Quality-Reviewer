@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from sqlalchemy.engine import URL
 
 # Load .env from backend root or workspace root
 backend_dir = Path(__file__).resolve().parent.parent
@@ -11,21 +12,44 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "prod-market-reviewer-secret-key-99214")
     
     # Database configuration
-    # Can be MySQL (e.g. mysql+pymysql://user:pass@host:3306/dbname) or SQLite fallback
+        # Database configuration
     MYSQL_USER = os.getenv("MYSQL_USER", "root")
     MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
     MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
-    MYSQL_PORT = os.getenv("MYSQL_PORT", "3306")
+    MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306"))
     MYSQL_DB = os.getenv("MYSQL_DATABASE", "marketplace_reviewer")
-    
-    DEFAULT_MYSQL_URI = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
-    
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URI") or DEFAULT_MYSQL_URI
+
+    DEFAULT_MYSQL_URI = URL.create(
+        drivername="mysql+pymysql",
+        username=MYSQL_USER,
+        password=MYSQL_PASSWORD,
+        host=MYSQL_HOST,
+        port=MYSQL_PORT,
+        database=MYSQL_DB,
+    )
+
+    SQLALCHEMY_DATABASE_URI = (
+        os.getenv("DATABASE_URL")
+        or os.getenv("SQLALCHEMY_DATABASE_URI")
+        or DEFAULT_MYSQL_URI
+    )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_recycle": 280,
         "pool_pre_ping": True,
     }
+
+    # Aiven MySQL SSL configuration
+    MYSQL_SSL_CA = os.getenv("MYSQL_SSL_CA", "")
+
+    if MYSQL_SSL_CA:
+        SQLALCHEMY_ENGINE_OPTIONS["connect_args"] = {
+            "ssl": {
+                "ca": MYSQL_SSL_CA
+            }
+        }
 
     # AI Provider configuration (Groq)
     AI_PROVIDER = os.getenv("AI_PROVIDER", "groq")
